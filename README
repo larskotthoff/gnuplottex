@@ -1,0 +1,5 @@
+This package allows you to include gnuplot graphs in your LaTeX files. Gnuplot
+is a versatile plotting package. More information can be found at
+http://www.gnuplot.info/.
+
+Licensed under the GPL.

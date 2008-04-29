@@ -1,0 +1,305 @@
+% \iffalse meta-comment
+%
+% Copyright (c) 2006-2007, Lars Kotthoff <lars@larsko.org>
+%
+% Large portions copied from pdftex,
+% Copyright (c) 2001-3, Radhakrishnan CV <cvr@river-valley.com>
+%                       Rajagopal CV <cvr3@river-valley.com>
+%                       http://www.river-valley.com
+%
+% River Valley Technologies, Floor III, SJP Buildings, Cotton Hills
+% Trivandrum, India 695014
+%
+% Tel: +91 471 233 7501
+%
+%                     Antoine Chambert-Loir 
+%                     <chambert@math.polytechnique.fr>
+%                     http://www.math.polytechnique.fr/~chambert
+%
+% Ecole polytechnique, Palaiseau Cedex, France
+%
+% This program is free software; you can redistribute it and/or
+% modify it under the terms of the GNU General Public License
+% as published by the Free Software Foundation; either version 2
+% of the License, or (at your option) any later version.
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+% 
+% You should have received a copy of the GNU General Public License
+% along with this program (gpl.txt); if not, write to the Free
+% Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
+% MA  02111-1307, USA.
+%
+% \fi
+%
+% \iffalse
+%<*driver>
+\ProvidesFile{gnuplottex.dtx}
+%</driver>
+%<package> \NeedsTeXFormat{LaTeX2e}[1999/12/01]
+%<package> \ProvidesPackage{gnuplottex}
+%<*package>
+    [2007/10/13 v0.4.2 gnuplot graphs in LaTeX]
+\RequirePackage{latexsym,graphicx,moreverb,keyval,ifthen}
+%</package>
+%
+%<*driver>
+\documentclass{ltxdoc}
+\usepackage{gnuplottex}
+\EnableCrossrefs
+\CodelineIndex
+\RecordChanges
+\begin{document}
+    \DocInput{gnuplottex.dtx}
+    \PrintChanges
+    \PrintIndex
+\end{document}
+%</driver>                                                       
+% \fi
+%
+% \CheckSum{238}                                                   
+%
+% \CharacterTable                                                
+%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%   Digits        \0\1\2\3\4\5\6\7\8\9
+%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%   Dollar        \$     Percent       \%     Ampersand     \&
+%   Acute accent  \'     Left paren    \(     Right paren   \)
+%   Asterisk      \*     Plus          \+     Comma         \,
+%   Minus         \-     Point         \.     Solidus       \/
+%   Colon         \:     Semicolon     \;     Less than     \<
+%   Equals        \=     Greater than  \>     Question mark \?
+%   Commercial at \@     Left bracket  \[     Backslash     \\
+%   Right bracket \]     Circumflex    \^     Underscore    \_
+%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%   Right brace   \}     Tilde         \~}
+%
+%
+% \changes{v0.1}{2006/04/02}{Initial version.}
+% \changes{v0.2}{2006/10/28}{Changed gnuplot output to LaTeX, simplified code.}
+% \changes{v0.3}{2007/08/21}{Improved MikTeX compatibility.}
+% \changes{v0.4}{2007/09/28}{Added feature to specify gnuplot terminal.}
+% \changes{v0.4.1}{2007/10/06}{Improved gnuplot terminal handling.}
+% \changes{v0.4.2}{2007/10/13}{Added terminaloptions option.}
+%
+% \GetFileInfo{gnuplottex.dtx}
+%
+% \DoNotIndex{\the,\year,\month,\day,\time}
+%
+% \title{The \textsf{gnuplottex} package\thanks{This document
+%   corresponds to \textsf{gnuplottex}~\fileversion, dated \filedate.}}
+% \author{Lars Kotthof\/f\\ \texttt{lars@larsko.org}}
+%
+% \maketitle
+%
+% \section{Introduction}
+%
+% This package allows you to include gnuplot graphs in your \LaTeX{} documents.
+%
+% The gnuplot code is extracted from the document and written to
+% \texttt{.gnuplot} files. Then, if shell escape is used, the graph files are
+% automatically processed to graphics or \LaTeX{} code files which will then be
+% included in the document.
+% If shell escape isn't used, the user will have to manually convert
+% the files by running gnuplot on the extracted \texttt{.gnuplot} files.
+%
+% Shell escape is available in the web2c \TeX{} compiler, it allows the execution
+% of shell code during the compilation of a \TeX{} document. It's disabled by
+% default, you'll have to edit your configuration files or give the
+% \texttt{-shell-escape} option to \texttt{latex}.
+%
+% \section{Requirements}
+%
+% To use gnuplottex, you'll need the \texttt{graphicx}, \texttt{latexsym},
+% \texttt{keyval}, \texttt{ifthen}, and \texttt{moreverb} packages and, of
+% course, gnuplot.
+%
+% \section{Usage}
+%
+% To load the package, simply \verb=\usepackage{gnuplottex}= in your document
+% preamble. Options that can be passed to the package are
+% \begin{description}
+%     \item[\oarg{shell}] Use shell escape to automatically generate the graphs
+%     from the gnuplot source files. This is the default. Normally, you don't
+%     need to specify this option.
+%     \item[\oarg{noshell}] Don't use shell escape, graphs must be generated
+%     manually.
+%     \item[\oarg{miktex}] We're using mikTeX.
+% \end{description}
+%
+% The following environments can be used to include graphs:
+%
+% \DescribeEnv{gnuplot}
+% Within this environment, you can specify arbitrary gnuplot code, for example\\
+% \texttt{plot sin(x)}.\\
+% The code necessary to write the plot to a file will be inserted by this
+% package. It adds 'set terminal \meta{terminal}' and the name of the output file.
+% The terminal can be specified by the user and defaults to \texttt{latex}. It may
+% be set to anything supported by gnuplot. If set to a terminal which produces
+% \TeX{} output, such as latex, tex, epslatex, or pstricks, the file processed
+% by gnuplot will be included with the \verb=\include= command, else the
+% \verb=\includegraphics= command is used. The file extension of the
+% intermediate file is in some cases different from the terminal name, this is
+% taken care of for most common terminals in the package code. If graphics
+% inclusion fails for a specific terminal, the intermediate file extension may
+% be the cause.
+%
+% The terminal name can be specified as
+% a value to the key \texttt{terminal} as an argument to the environment,\\
+% \verb=\begin{gnuplot}=[terminal=\meta{terminal}]\\
+% \ldots\\
+% \verb=\end{gnuplot}=
+%
+% The graph can be scaled by providing an argument to the \texttt{scale} key,
+% similar to the specification of the terminal name. It defaults to 1, i.e.\ no
+% scaling will be done. Additional options to the terminal can be given as
+% argument to the \texttt{terminaloptions} key, e.g.\\
+% \verb=\begin{gnuplot}=[terminal=pdf,terminaloptions=fsize 12 linewidth 2]\\
+% \ldots\\
+% \verb=\end{gnuplot}=
+%
+% \section{Acknowledgements}
+%
+% Thanks to Roy Ratcliffe for the suggestion and basic code for the gnuplot
+% terminal specification and handling.
+% I would also like to thank all the people who sent me bug reports and feature
+% requests. Gnuplottex wouldn't be what it is today without you.
+%
+% \StopEventually{}
+%
+% \section{Implementation}
+%
+% \subsection{Initialization}
+%    \begin{macrocode}
+\newif\ifShellEscape
+\newif\ifmiktex \miktexfalse
+
+\DeclareOption{shell}{\ShellEscapetrue}
+\DeclareOption{noshell}{\ShellEscapefalse}
+\DeclareOption{miktex}{\global\miktextrue}
+
+\ExecuteOptions{shell}
+\ProcessOptions\relax
+%% test if shell escape really works
+\ifShellEscape
+		\def\tmpfile{/tmp/w18-test-\the\year\the\month\the\day\the\time}
+		\ifmiktex
+				\def\tmpfile{w18-test-\the\year\the\month\the\day\the\time}
+				\immediate\write18{echo t > "\tmpfile"}
+		\else
+				\immediate\write18{touch \tmpfile}
+		\fi
+		\ifmiktex
+				\IfFileExists{\tmpfile.}{\ShellEscapetrue}{\ShellEscapefalse}
+				\immediate\write18{del "\tmpfile"}
+		\else
+				\IfFileExists{\tmpfile}{\ShellEscapetrue}{\ShellEscapefalse}
+				\immediate\write18{rm -f \tmpfile}
+		\fi
+\fi
+
+\ifShellEscape
+    \PackageInfo{gnuplottex}
+    {Automatically converting gnuplot files.}
+\else
+    \PackageWarningNoLine{gnuplottex}
+        {Shell escape not enabled.\MessageBreak
+        You'll need to convert the graphs yourself.}
+\fi
+\newcounter{fignum}
+%    \end{macrocode}
+%
+% \subsection{\texttt{.gnuplot} write out}
+%    \begin{macrocode}
+\def\figname{\jobname-gnuplottex-fig\thefignum}
+
+\def\gnuplotverbatimwrite#1{%
+    \def\BeforeStream
+    {\message{Opening gnuplot stream #1}%
+        \immediate\write\verbatim@out{\string set terminal \gnuplotterminal \gnuplotterminaloptions}
+				\immediate\write\verbatim@out{\string set output '\figname.\gnuplottexextension{\gnuplotterminal}'}
+    }
+    \@bsphack
+    \immediate\openout \verbatim@out #1
+    \BeforeStream%
+    \let\do\@makeother\dospecials
+    \catcode`\^^M\active
+    \def\verbatim@processline{%
+        \immediate\write\verbatim@out
+        {\the\verbatim@line}}%
+    \verbatim@start}
+\def\endgnuplotverbatimwrite{%
+    \immediate\closeout\verbatim@out
+    \@esphack
+		\catcode`\\0
+		\catcode`\{1
+		\catcode`\}2
+		\catcode`\$3
+		\catcode`\&4
+		\catcode`\^^M5
+		\catcode`\#6
+		\catcode`\^7
+		\catcode`\_8
+		\catcode`\ 10
+		\catcode`\%14}
+%    \end{macrocode}
+% 
+% \subsection{Environment definition}
+%    \begin{macrocode}
+\def\gnuplottexextension@latex{\string tex}
+\def\gnuplottexextension@epslatex{\string tex}
+\def\gnuplottexextension@eepic{\string tex}
+\def\gnuplottexextension@pstricks{\string tex}
+\def\gnuplottexextension@pslatex{\string tex}
+\def\gnuplottexextension@pstex{\string tex}
+\def\gnuplottexextension@emtex{\string tex}
+\def\gnuplottexextension@jpeg{\string jpg}
+\def\gnuplottexextension#1{\@ifundefined{gnuplottexextension@#1}{#1}{\csname gnuplottexextension@#1\endcsname}}
+\define@key{pic}{scale}[1]{\def\gnuplotscale{#1}}
+\define@key{pic}{terminal}[latex]{\def\gnuplotterminal{#1}}
+\define@key{pic}{terminaloptions}{\def\gnuplotterminaloptions{ #1}}
+\newenvironment{gnuplot}[1][]{\stepcounter{fignum}%
+		\def\gnuplotterminal{latex}
+		\def\gnuplotterminaloptions{}
+		\def\gnuplotscale{1}
+		\setkeys{pic}{#1}
+    \xdef\gnuplotCutFile{\figname.gnuplot}
+    \gnuplotverbatimwrite{\gnuplotCutFile}}
+    {\endgnuplotverbatimwrite%
+    \gnuplotgraphicsprocess%
+    \gnuplotgraphicsinclude}
+%    \end{macrocode}
+%
+% \subsection{\texttt{.gnuplot} file processing}
+%    \begin{macrocode}
+\def\extension{\gnuplottexextension{\gnuplotterminal}}
+\long\gdef\gnuplotgraphicsprocess{%
+		\ifShellEscape
+				\IfFileExists{\figname.gnuplot}{%
+						\immediate\write18{gnuplot \figname.gnuplot}
+						\IfFileExists{\figname.\extension}{%
+								\PackageInfo{gnuplottex}{\figname.gnuplot converted}}
+						{\PackageWarningNoLine{gnuplottex}
+								{Conversion of \figname.gnuplot failed}}}{}
+		\fi}
+%    \end{macrocode}
+%
+% \subsection{Graph inclusion}
+%    \begin{macrocode}
+\long\gdef\gnuplotgraphicsinclude{%
+		\IfFileExists{\figname.\extension}{%
+				\ifthenelse{\equal{\extension}{\string tex}}
+						{\scalebox{\gnuplotscale}{\input{\figname.\extension}}}
+						{\includegraphics[scale=\gnuplotscale]{\figname.\extension}}
+		}
+		{\PackageWarningNoLine{gnuplottex}
+				{Please convert \figname.gnuplot manually}}
+}
+%    \end{macrocode}
+%
+% \Finale
+\endinput
