@@ -1,6 +1,6 @@
 % \iffalse meta-comment
 %
-% Copyright (c) 2006-2007, Lars Kotthoff <lars@larsko.org>
+% Copyright (c) 2006-2011, Lars Kotthoff <lars@larsko.org>
 %
 % Large portions copied from pdftex,
 % Copyright (c) 2001-3, Radhakrishnan CV <cvr@river-valley.com>
@@ -42,7 +42,7 @@
 %<package> \NeedsTeXFormat{LaTeX2e}[1999/12/01]
 %<package> \ProvidesPackage{gnuplottex}
 %<*package>
-    [2007/10/13 v0.4.2 gnuplot graphs in LaTeX]
+    [2011/04/16 v0.4.3 gnuplot graphs in LaTeX]
 \RequirePackage{latexsym,graphicx,moreverb,keyval,ifthen}
 %</package>
 %
@@ -158,7 +158,7 @@
 % similar to the specification of the terminal name. It defaults to 1, i.e.\ no
 % scaling will be done. Additional options to the terminal can be given as
 % argument to the \texttt{terminaloptions} key, e.g.\\
-% \verb=\begin{gnuplot}=[terminal=pdf,terminaloptions=fsize 12 linewidth 2]\\
+% \verb=\begin{gnuplot}=[terminal=pdf,terminaloptions={font ",10" linewidth 3}]\\
 % \ldots\\
 % \verb=\end{gnuplot}=
 %
