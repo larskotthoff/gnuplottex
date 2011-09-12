@@ -42,7 +42,7 @@
 %<package> \NeedsTeXFormat{LaTeX2e}[1999/12/01]
 %<package> \ProvidesPackage{gnuplottex}
 %<*package>
-    [2011/04/16 v0.4.3 gnuplot graphs in LaTeX]
+    [2011/09/12 v0.4.4 gnuplot graphs in LaTeX]
 \RequirePackage{latexsym,graphicx,moreverb,keyval,ifthen}
 %</package>
 %
@@ -60,7 +60,7 @@
 %</driver>                                                       
 % \fi
 %
-% \CheckSum{238}                                                   
+% \CheckSum{240}                                                   
 %
 % \CharacterTable                                                
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -85,6 +85,8 @@
 % \changes{v0.4}{2007/09/28}{Added feature to specify gnuplot terminal.}
 % \changes{v0.4.1}{2007/10/06}{Improved gnuplot terminal handling.}
 % \changes{v0.4.2}{2007/10/13}{Added terminaloptions option.}
+% \changes{v0.4.3}{2011/04/16}{Fixed terminaloptions example (Philip Vetter).}
+% \changes{v0.4.4}{2011/09/11}{Fixed "Undefined control sequence" error (sdaau).}
 %
 % \GetFileInfo{gnuplottex.dtx}
 %
@@ -177,6 +179,8 @@
 %    \begin{macrocode}
 \newif\ifShellEscape
 \newif\ifmiktex \miktexfalse
+
+\newwrite\verbatim@out
 
 \DeclareOption{shell}{\ShellEscapetrue}
 \DeclareOption{noshell}{\ShellEscapefalse}
