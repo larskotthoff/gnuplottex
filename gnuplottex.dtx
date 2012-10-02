@@ -1,6 +1,6 @@
 % \iffalse meta-comment
 %
-% Copyright (c) 2006-2011, Lars Kotthoff <lars@larsko.org>
+% Copyright (c) 2006-2012, Lars Kotthoff <lars@larsko.org>
 %
 % Large portions copied from pdftex,
 % Copyright (c) 2001-3, Radhakrishnan CV <cvr@river-valley.com>
@@ -42,7 +42,7 @@
 %<package> \NeedsTeXFormat{LaTeX2e}[1999/12/01]
 %<package> \ProvidesPackage{gnuplottex}
 %<*package>
-    [2011/09/12 v0.4.4 gnuplot graphs in LaTeX]
+    [2012/10/02 v0.4.5 gnuplot graphs in LaTeX]
 \RequirePackage{latexsym,graphicx,moreverb,keyval,ifthen}
 %</package>
 %
@@ -60,7 +60,7 @@
 %</driver>                                                       
 % \fi
 %
-% \CheckSum{240}                                                   
+% \CheckSum{243}
 %
 % \CharacterTable                                                
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -87,6 +87,7 @@
 % \changes{v0.4.2}{2007/10/13}{Added terminaloptions option.}
 % \changes{v0.4.3}{2011/04/16}{Fixed terminaloptions example (Philip Vetter).}
 % \changes{v0.4.4}{2011/09/11}{Fixed "Undefined control sequence" error (sdaau).}
+% \changes{v0.4.5}{2012/10/02}{Add support for cairolatex terminal (Mika % Pfl\"uger).}
 %
 % \GetFileInfo{gnuplottex.dtx}
 %
@@ -256,6 +257,7 @@
 %    \begin{macrocode}
 \def\gnuplottexextension@latex{\string tex}
 \def\gnuplottexextension@epslatex{\string tex}
+\def\gnuplottexextension@cairolatex{\string tex}
 \def\gnuplottexextension@eepic{\string tex}
 \def\gnuplottexextension@pstricks{\string tex}
 \def\gnuplottexextension@pslatex{\string tex}
