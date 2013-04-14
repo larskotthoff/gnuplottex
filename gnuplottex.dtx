@@ -42,7 +42,7 @@
 %<package> \NeedsTeXFormat{LaTeX2e}[1999/12/01]
 %<package> \ProvidesPackage{gnuplottex}
 %<*package>
-    [2012/10/02 v0.4.5 gnuplot graphs in LaTeX]
+    [2013/04/14 v0.4.6 gnuplot graphs in LaTeX]
 \RequirePackage{latexsym,graphicx,moreverb,keyval,ifthen}
 %</package>
 %
@@ -87,7 +87,8 @@
 % \changes{v0.4.2}{2007/10/13}{Added terminaloptions option.}
 % \changes{v0.4.3}{2011/04/16}{Fixed terminaloptions example (Philip Vetter).}
 % \changes{v0.4.4}{2011/09/11}{Fixed "Undefined control sequence" error (sdaau).}
-% \changes{v0.4.5}{2012/10/02}{Add support for cairolatex terminal (Mika % Pfl\"uger).}
+% \changes{v0.4.5}{2012/10/02}{Add support for cairolatex terminal (Mika Pfl\"uger).}
+% \changes{v0.4.6}{2013/04/14}{Fix bug with temporary file creation in LuaTeX (Henri Menke).}
 %
 % \GetFileInfo{gnuplottex.dtx}
 %
@@ -191,9 +192,9 @@
 \ProcessOptions\relax
 %% test if shell escape really works
 \ifShellEscape
-		\def\tmpfile{/tmp/w18-test-\the\year\the\month\the\day\the\time}
+		\def\tmpfile{/tmp/w18-test-\the\year\the\month\the\day\the\time.tex}
 		\ifmiktex
-				\def\tmpfile{w18-test-\the\year\the\month\the\day\the\time}
+				\def\tmpfile{w18-test-\the\year\the\month\the\day\the\time.tex}
 				\immediate\write18{echo t > "\tmpfile"}
 		\else
 				\immediate\write18{touch \tmpfile}
