@@ -42,7 +42,7 @@
 %<package> \NeedsTeXFormat{LaTeX2e}[1999/12/01]
 %<package> \ProvidesPackage{gnuplottex}
 %<*package>
-    [2013/04/14 v0.4.6 gnuplot graphs in LaTeX]
+    [2013/06/03 v0.5 gnuplot graphs in LaTeX]
 \RequirePackage{latexsym,graphicx,moreverb,keyval,ifthen}
 %</package>
 %
@@ -60,7 +60,7 @@
 %</driver>                                                       
 % \fi
 %
-% \CheckSum{243}
+% \CheckSum{286}
 %
 % \CharacterTable                                                
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -89,6 +89,7 @@
 % \changes{v0.4.4}{2011/09/11}{Fixed "Undefined control sequence" error (sdaau).}
 % \changes{v0.4.5}{2012/10/02}{Add support for cairolatex terminal (Mika Pfl\"uger).}
 % \changes{v0.4.6}{2013/04/14}{Fix bug with temporary file creation in LuaTeX (Henri Menke).}
+% \changes{v0.5}{2013/06/03}{Provide command to include gnuplot code in file verbatim (Michel Vo\ss{}kuhle).}
 %
 % \GetFileInfo{gnuplottex.dtx}
 %
@@ -116,6 +117,9 @@
 % default, you'll have to edit your configuration files or give the
 % \texttt{-shell-escape} option to \texttt{latex}.
 %
+% The package also allows you to include gnuplot code in a file verbatim,
+% generating and including the plot automatically.
+%
 % \section{Requirements}
 %
 % To use gnuplottex, you'll need the \texttt{graphicx}, \texttt{latexsym},
@@ -135,7 +139,7 @@
 %     \item[\oarg{miktex}] We're using mikTeX.
 % \end{description}
 %
-% The following environments can be used to include graphs:
+% The following environment can be used to include graphs:
 %
 % \DescribeEnv{gnuplot}
 % Within this environment, you can specify arbitrary gnuplot code, for example\\
@@ -166,10 +170,18 @@
 % \ldots\\
 % \verb=\end{gnuplot}=
 %
+% \DescribeMacro{\gnuplotloadfile}
+%
+% In addition to the environment, you can use the command
+% \verb=\gnuplotloadfile= to directly include gnuplot source code. It accepts
+% the same options as the environment, e.g.\\
+% \verb+\gnuplotloadfile[terminal=pdf]{example.gnuplot}+
+%
 % \section{Acknowledgements}
 %
 % Thanks to Roy Ratcliffe for the suggestion and basic code for the gnuplot
-% terminal specification and handling.
+% terminal specification and handling. Additional thanks to Michel Vo\ss{}uhle
+% for the implementation of \verb=\gnuplotloadfile=.
 % I would also like to thank all the people who sent me bug reports and feature
 % requests. Gnuplottex wouldn't be what it is today without you.
 %
@@ -306,6 +318,30 @@
 		{\PackageWarningNoLine{gnuplottex}
 				{Please convert \figname.gnuplot manually}}
 }
+%    \end{macrocode}
+%
+% \subsection{\texttt{.gnuplot} file processing}
+%    \begin{macrocode}
+\newcommand{\gnuplotloadfilewrite}[2]{%
+  \immediate\openout \verbatim@out #1%
+  \message{Opening gnuplot stream #1}%
+  \immediate\write\verbatim@out{\string set terminal \gnuplotterminal \gnuplotterminaloptions}%
+  \immediate\write\verbatim@out{\string set output '\figname.\gnuplottexextension{\gnuplotterminal}'}%
+  \immediate\write\verbatim@out{\string load '#2'}%
+  \immediate\closeout\verbatim@out%
+ }
+
+ \newcommand{\gnuplotloadfile}[2][]{
+  \stepcounter{fignum}%
+  \def\gnuplotterminal{latex}
+  \def\gnuplotterminaloptions{}
+  \def\gnuplotscale{1}
+  \setkeys{pic}{#1}
+  \xdef\gnuplotCutFile{\figname.gnuplot}
+  \gnuplotloadfilewrite{\gnuplotCutFile}{#2}
+  \gnuplotgraphicsprocess%
+  \gnuplotgraphicsinclude
+ }
 %    \end{macrocode}
 %
 % \Finale
