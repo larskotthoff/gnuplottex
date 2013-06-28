@@ -1,6 +1,6 @@
 % \iffalse meta-comment
 %
-% Copyright (c) 2006-2012, Lars Kotthoff <lars@larsko.org>
+% Copyright (c) 2006-2013, Lars Kotthoff <lars@larsko.org>
 %
 % Large portions copied from pdftex,
 % Copyright (c) 2001-3, Radhakrishnan CV <cvr@river-valley.com>
@@ -42,7 +42,7 @@
 %<package> \NeedsTeXFormat{LaTeX2e}[1999/12/01]
 %<package> \ProvidesPackage{gnuplottex}
 %<*package>
-    [2013/06/03 v0.5 gnuplot graphs in LaTeX]
+    [2013/06/28 v0.6 gnuplot graphs in LaTeX]
 \RequirePackage{latexsym,graphicx,moreverb,keyval,ifthen}
 %</package>
 %
@@ -60,7 +60,7 @@
 %</driver>                                                       
 % \fi
 %
-% \CheckSum{286}
+% \CheckSum{355}
 %
 % \CharacterTable                                                
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -90,6 +90,7 @@
 % \changes{v0.4.5}{2012/10/02}{Add support for cairolatex terminal (Mika Pfl\"uger).}
 % \changes{v0.4.6}{2013/04/14}{Fix bug with temporary file creation in LuaTeX (Henri Menke).}
 % \changes{v0.5}{2013/06/03}{Provide command to include gnuplot code in file verbatim (Michel Vo\ss{}kuhle).}
+% \changes{v0.6}{2013/06/28}{Support for \texttt{siunitx} package and tikz terminal (Udo H\"ofel).}
 %
 % \GetFileInfo{gnuplottex.dtx}
 %
@@ -137,6 +138,10 @@
 %     \item[\oarg{noshell}] Don't use shell escape, graphs must be generated
 %     manually.
 %     \item[\oarg{miktex}] We're using mikTeX.
+%     \item[\oarg{siunitx}] Use \texttt{siunitx} to typeset numbers in the
+%     graphs. You need to load the \texttt{siunitx} package before
+%     \texttt{gnuplottex} for this to work. If the gnuplot terminal does not
+%     support \TeX, a warning will be given and the functionality not used.
 % \end{description}
 %
 % The following environment can be used to include graphs:
@@ -193,12 +198,14 @@
 %    \begin{macrocode}
 \newif\ifShellEscape
 \newif\ifmiktex \miktexfalse
+\newif\ifusesiunitx
 
 \newwrite\verbatim@out
 
 \DeclareOption{shell}{\ShellEscapetrue}
 \DeclareOption{noshell}{\ShellEscapefalse}
 \DeclareOption{miktex}{\global\miktextrue}
+\DeclareOption{siunitx}{\usesiunitxtrue}
 
 \ExecuteOptions{shell}
 \ProcessOptions\relax
@@ -235,11 +242,20 @@
 %    \begin{macrocode}
 \def\figname{\jobname-gnuplottex-fig\thefignum}
 
+\def\usesiunitxingnuplot{{\escapechar=-1\edef\percentforgnuplot{\string\%}
+                        \escapechar=-1\edef\backslashforgnuplot{\string\\}
+                        \immediate\write\verbatim@out{set format '\backslashforgnuplot num{\percentforgnuplot g}'}}}
+
 \def\gnuplotverbatimwrite#1{%
     \def\BeforeStream
     {\message{Opening gnuplot stream #1}%
         \immediate\write\verbatim@out{\string set terminal \gnuplotterminal \gnuplotterminaloptions}
 				\immediate\write\verbatim@out{\string set output '\figname.\gnuplottexextension{\gnuplotterminal}'}
+    \ifusesiunitx
+        \ifthenelse{\equal{\extension}{\string tex}}{\usesiunitxingnuplot}{\PackageWarningNoLine{gnuplottex}{Axis numbers not written in \noexpand\num{}. Use a terminal that allows TeX output to enable this feature.}}
+    \else
+        \relax
+    \fi
     }
     \@bsphack
     \immediate\openout \verbatim@out #1
@@ -277,6 +293,7 @@
 \def\gnuplottexextension@pstex{\string tex}
 \def\gnuplottexextension@emtex{\string tex}
 \def\gnuplottexextension@jpeg{\string jpg}
+\def\gnuplottexextension@tikz{\string tex}
 \def\gnuplottexextension#1{\@ifundefined{gnuplottexextension@#1}{#1}{\csname gnuplottexextension@#1\endcsname}}
 \define@key{pic}{scale}[1]{\def\gnuplotscale{#1}}
 \define@key{pic}{terminal}[latex]{\def\gnuplotterminal{#1}}
@@ -327,6 +344,18 @@
   \message{Opening gnuplot stream #1}%
   \immediate\write\verbatim@out{\string set terminal \gnuplotterminal \gnuplotterminaloptions}%
   \immediate\write\verbatim@out{\string set output '\figname.\gnuplottexextension{\gnuplotterminal}'}%
+  \ifusesiunitx
+    \ifthenelse{\equal{\extension}{\string tex}}{\usesiunitxingnuplot}{\PackageWarningNoLine{gnuplottex}{Axis numbers not written in \noexpand\num{}. Use a terminal that allows TeX output to enable this feature.}}
+  \else
+    \relax
+  \fi
+  \ifusesiunitx
+      {\escapechar=-1\edef\percentforgnuplot{\string\%}
+          \escapechar=-1\edef\backslashforgnuplot{\string\\}
+      \immediate\write\verbatim@out{set format '\backslashforgnuplot num{\percentforgnuplot g}'}}
+  \else
+      \relax
+  \fi
   \immediate\write\verbatim@out{\string load '#2'}%
   \immediate\closeout\verbatim@out%
  }
