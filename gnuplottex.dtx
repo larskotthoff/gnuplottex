@@ -1,6 +1,6 @@
 % \iffalse meta-comment
 %
-% Copyright (c) 2006-2013, Lars Kotthoff <lars@larsko.org>
+% Copyright (c) 2006-2013, Lars Kotthoff <lars@larsko.org> and contributors
 %
 % Large portions copied from pdftex,
 % Copyright (c) 2001-3, Radhakrishnan CV <cvr@river-valley.com>
@@ -42,7 +42,7 @@
 %<package> \NeedsTeXFormat{LaTeX2e}[1999/12/01]
 %<package> \ProvidesPackage{gnuplottex}
 %<*package>
-    [2013/06/28 v0.6 gnuplot graphs in LaTeX]
+    [2013/07/02 v0.7 gnuplot graphs in LaTeX]
 \RequirePackage{latexsym,graphicx,moreverb,keyval,ifthen}
 %</package>
 %
@@ -60,7 +60,7 @@
 %</driver>                                                       
 % \fi
 %
-% \CheckSum{355}
+% \CheckSum{418}
 %
 % \CharacterTable                                                
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -91,6 +91,7 @@
 % \changes{v0.4.6}{2013/04/14}{Fix bug with temporary file creation in LuaTeX (Henri Menke).}
 % \changes{v0.5}{2013/06/03}{Provide command to include gnuplot code in file verbatim (Michel Vo\ss{}kuhle).}
 % \changes{v0.6}{2013/06/28}{Support for \texttt{siunitx} package and tikz terminal (Udo H\"ofel).}
+% \changes{v0.7}{2013/07/02}{Add cleanup and subfolder option (Udo H\"ofel).}
 %
 % \GetFileInfo{gnuplottex.dtx}
 %
@@ -98,7 +99,7 @@
 %
 % \title{The \textsf{gnuplottex} package\thanks{This document
 %   corresponds to \textsf{gnuplottex}~\fileversion, dated \filedate.}}
-% \author{Lars Kotthof\/f\\ \texttt{lars@larsko.org}}
+% \author{Lars Kotthoff and contrbutors\\ \texttt{lars@larsko.org}}
 %
 % \maketitle
 %
@@ -142,6 +143,9 @@
 %     graphs. You need to load the \texttt{siunitx} package before
 %     \texttt{gnuplottex} for this to work. If the gnuplot terminal does not
 %     support \TeX, a warning will be given and the functionality not used.
+%     \item[\oarg{subfolder}] Put the generated graphs in a "gnuplottex"
+%     subfolder, which will be created automatically.
+%     \item[\oarg{cleanup}] Delete the \texttt{.gnuplot} files after conversion.
 % \end{description}
 %
 % The following environment can be used to include graphs:
@@ -184,11 +188,12 @@
 %
 % \section{Acknowledgements}
 %
-% Thanks to Roy Ratcliffe for the suggestion and basic code for the gnuplot
-% terminal specification and handling. Additional thanks to Michel Vo\ss{}uhle
-% for the implementation of \verb=\gnuplotloadfile=.
-% I would also like to thank all the people who sent me bug reports and feature
-% requests. Gnuplottex wouldn't be what it is today without you.
+% In addition to the people mentioned in the changelog, I would like to thank
+% Roy Ratcliffe for the suggestion and basic code for the gnuplot terminal
+% specification and handling. Additional thanks to Michel Vo\ss{}uhle for the
+% implementation of \verb=\gnuplotloadfile=. I would also like to thank all the
+% people who sent me bug reports, feature requests and patches. Gnuplottex
+% wouldn't be what it is today without you.
 %
 % \StopEventually{}
 %
@@ -199,6 +204,8 @@
 \newif\ifShellEscape
 \newif\ifmiktex \miktexfalse
 \newif\ifusesiunitx
+\newif\ifcleanup
+\newif\ifusesubfolder
 
 \newwrite\verbatim@out
 
@@ -206,14 +213,15 @@
 \DeclareOption{noshell}{\ShellEscapefalse}
 \DeclareOption{miktex}{\global\miktextrue}
 \DeclareOption{siunitx}{\usesiunitxtrue}
+\DeclareOption{cleanup}{\cleanuptrue}
+\DeclareOption{subfolder}{\usesubfoldertrue}
 
 \ExecuteOptions{shell}
 \ProcessOptions\relax
 %% test if shell escape really works
 \ifShellEscape
-		\def\tmpfile{/tmp/w18-test-\the\year\the\month\the\day\the\time.tex}
+		\def\tmpfile{w18-test-\the\year\the\month\the\day\the\time.tex}
 		\ifmiktex
-				\def\tmpfile{w18-test-\the\year\the\month\the\day\the\time.tex}
 				\immediate\write18{echo t > "\tmpfile"}
 		\else
 				\immediate\write18{touch \tmpfile}
@@ -226,6 +234,33 @@
 				\immediate\write18{rm -f \tmpfile}
 		\fi
 \fi
+
+\ifusesubfolder
+    \ifmiktex
+        \immediate\write18{mkdir gnuplottex}
+        \immediate\write18{echo test > "gnuplottex/\tmpfile"}
+    \else
+        \immediate\write18{mkdir -p "gnuplottex"}
+        \immediate\write18{touch "gnuplottex/\tmpfile"}
+    \fi
+    \IfFileExists{gnuplottex/\tmpfile}{
+        \ifmiktex
+            \immediate\write18{del "gnuplottex\@backslashchar\tmpfile"}
+            \def\subfolder{gnuplottex\@backslashchar}
+        \else
+            \immediate\write18{rm -f "gnuplottex/\tmpfile"}
+            \def\subfolder{gnuplottex/}
+        \fi
+        }{
+            \PackageWarningNoLine{gnuplottex}
+                {Creation of subfolder failed.\MessageBreak
+                You'll need to create the folder yourself}
+            \def\subfolder{}
+        }
+\else
+    \def\subfolder{}
+\fi
+
 
 \ifShellEscape
     \PackageInfo{gnuplottex}
@@ -250,7 +285,7 @@
     \def\BeforeStream
     {\message{Opening gnuplot stream #1}%
         \immediate\write\verbatim@out{\string set terminal \gnuplotterminal \gnuplotterminaloptions}
-				\immediate\write\verbatim@out{\string set output '\figname.\gnuplottexextension{\gnuplotterminal}'}
+				\immediate\write\verbatim@out{\string set output '\subfolder\figname.\gnuplottexextension{\gnuplotterminal}'}
     \ifusesiunitx
         \ifthenelse{\equal{\extension}{\string tex}}{\usesiunitxingnuplot}{\PackageWarningNoLine{gnuplottex}{Axis numbers not written in \noexpand\num{}. Use a terminal that allows TeX output to enable this feature.}}
     \else
@@ -303,7 +338,7 @@
 		\def\gnuplotterminaloptions{}
 		\def\gnuplotscale{1}
 		\setkeys{pic}{#1}
-    \xdef\gnuplotCutFile{\figname.gnuplot}
+    \xdef\gnuplotCutFile{\subfolder\figname.gnuplot}
     \gnuplotverbatimwrite{\gnuplotCutFile}}
     {\endgnuplotverbatimwrite%
     \gnuplotgraphicsprocess%
@@ -315,25 +350,33 @@
 \def\extension{\gnuplottexextension{\gnuplotterminal}}
 \long\gdef\gnuplotgraphicsprocess{%
 		\ifShellEscape
-				\IfFileExists{\figname.gnuplot}{%
-						\immediate\write18{gnuplot \figname.gnuplot}
-						\IfFileExists{\figname.\extension}{%
-								\PackageInfo{gnuplottex}{\figname.gnuplot converted}}
+				\IfFileExists{\subfolder\figname.gnuplot}{%
+						\immediate\write18{gnuplot \subfolder\figname.gnuplot}
+						\IfFileExists{\subfolder\figname.\extension}{%
+								\PackageInfo{gnuplottex}{\subfolder\figname.gnuplot converted}
+                \ifcleanup
+                    \ifmiktex
+                        \immediate\write18{del "\subfolder\figname.gnuplot"}
+                    \else
+                        \immediate\write18{rm -f "\subfolder\figname.gnuplot"}
+                    \fi
+                \fi
+            }
 						{\PackageWarningNoLine{gnuplottex}
-								{Conversion of \figname.gnuplot failed}}}{}
+								{Conversion of \subfolder\figname.gnuplot failed}}}{}
 		\fi}
 %    \end{macrocode}
 %
 % \subsection{Graph inclusion}
 %    \begin{macrocode}
 \long\gdef\gnuplotgraphicsinclude{%
-		\IfFileExists{\figname.\extension}{%
+		\IfFileExists{\subfolder\figname.\extension}{%
 				\ifthenelse{\equal{\extension}{\string tex}}
-						{\scalebox{\gnuplotscale}{\input{\figname.\extension}}}
-						{\includegraphics[scale=\gnuplotscale]{\figname.\extension}}
+						{\scalebox{\gnuplotscale}{\input{\subfolder\figname.\extension}}}
+						{\includegraphics[scale=\gnuplotscale]{\subfolder\figname.\extension}}
 		}
 		{\PackageWarningNoLine{gnuplottex}
-				{Please convert \figname.gnuplot manually}}
+				{Please convert \subfolder\figname.gnuplot manually}}
 }
 %    \end{macrocode}
 %
@@ -343,7 +386,7 @@
   \immediate\openout \verbatim@out #1%
   \message{Opening gnuplot stream #1}%
   \immediate\write\verbatim@out{\string set terminal \gnuplotterminal \gnuplotterminaloptions}%
-  \immediate\write\verbatim@out{\string set output '\figname.\gnuplottexextension{\gnuplotterminal}'}%
+  \immediate\write\verbatim@out{\string set output '\subfolder\figname.\gnuplottexextension{\gnuplotterminal}'}%
   \ifusesiunitx
     \ifthenelse{\equal{\extension}{\string tex}}{\usesiunitxingnuplot}{\PackageWarningNoLine{gnuplottex}{Axis numbers not written in \noexpand\num{}. Use a terminal that allows TeX output to enable this feature.}}
   \else
@@ -366,7 +409,7 @@
   \def\gnuplotterminaloptions{}
   \def\gnuplotscale{1}
   \setkeys{pic}{#1}
-  \xdef\gnuplotCutFile{\figname.gnuplot}
+  \xdef\gnuplotCutFile{\subfolder\figname.gnuplot}
   \gnuplotloadfilewrite{\gnuplotCutFile}{#2}
   \gnuplotgraphicsprocess%
   \gnuplotgraphicsinclude
