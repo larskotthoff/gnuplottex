@@ -60,7 +60,7 @@
 %</driver>                                                       
 % \fi
 %
-% \CheckSum{418}
+% \CheckSum{407}
 %
 % \CharacterTable                                                
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -277,9 +277,7 @@
 %    \begin{macrocode}
 \def\figname{\jobname-gnuplottex-fig\thefignum}
 
-\def\usesiunitxingnuplot{{\escapechar=-1\edef\percentforgnuplot{\string\%}
-                        \escapechar=-1\edef\backslashforgnuplot{\string\\}
-                        \immediate\write\verbatim@out{set format '\backslashforgnuplot num{\percentforgnuplot g}'}}}
+\def\usesiunitxingnuplot{\immediate\write\verbatim@out{set format '\@backslashchar num{\@percentchar g}'}}
 
 \def\gnuplotverbatimwrite#1{%
     \def\BeforeStream
