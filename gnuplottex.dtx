@@ -42,7 +42,7 @@
 %<package> \NeedsTeXFormat{LaTeX2e}[1999/12/01]
 %<package> \ProvidesPackage{gnuplottex}
 %<*package>
-    [2013/09/08 v0.7.1 gnuplot graphs in LaTeX]
+    [2013/11/16 v0.7.2 gnuplot graphs in LaTeX]
 \RequirePackage{latexsym,graphicx,moreverb,keyval,ifthen}
 %</package>
 %
@@ -60,7 +60,7 @@
 %</driver>                                                       
 % \fi
 %
-% \CheckSum{403}
+% \CheckSum{408}
 %
 % \CharacterTable                                                
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -93,6 +93,7 @@
 % \changes{v0.6}{2013/06/28}{Support for \texttt{siunitx} package and tikz terminal (Udo H\"ofel).}
 % \changes{v0.7}{2013/07/23}{Add cleanup and subfolder option (Udo H\"ofel).}
 % \changes{v0.7.1}{2013/09/08}{Fix bug with subfolder option with MikTeX (Thomas Schmid).}
+% \changes{v0.7.2}{2013/11/16}{Allow to specify path to gnuplot (Manuel Solano)}.
 %
 % \GetFileInfo{gnuplottex.dtx}
 %
@@ -148,6 +149,10 @@
 %     subfolder, which will be created automatically.
 %     \item[\oarg{cleanup}] Delete the \texttt{.gnuplot} files after conversion.
 % \end{description}
+%
+% In addition, you can set \verb=\gnuplotexe= to the path to the gnuplot
+% executable. Normally, you don't need to do this; use this option only if
+% \LaTeX{} doesn't find gnuplot.
 %
 % The following environment can be used to include graphs:
 %
@@ -216,6 +221,8 @@
 \DeclareOption{siunitx}{\usesiunitxtrue}
 \DeclareOption{cleanup}{\cleanuptrue}
 \DeclareOption{subfolder}{\usesubfoldertrue}
+
+\@ifundefined{gnuplotexe}{\def\gnuplotexe{gnuplot}}{}
 
 \ExecuteOptions{shell}
 \ProcessOptions\relax
@@ -349,7 +356,7 @@
 \long\gdef\gnuplotgraphicsprocess{%
 		\ifShellEscape
 				\IfFileExists{\subfolder\figname.gnuplot}{%
-						\immediate\write18{gnuplot \subfolder\figname.gnuplot}
+						\immediate\write18{\gnuplotexe\space \subfolder\figname.gnuplot}
 						\IfFileExists{\subfolder\figname.\extension}{%
 								\PackageInfo{gnuplottex}{\subfolder\figname.gnuplot converted}
                 \ifcleanup
