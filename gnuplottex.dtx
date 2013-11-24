@@ -761,6 +761,7 @@
 \def\gnuplottexextension@emtex{\string tex}
 \def\gnuplottexextension@jpeg{\string jpg}
 \def\gnuplottexextension@tikz{\string tex}
+\def\gnuplottexextension@lua{\string tex}
 \def\gnuplottexextension#1{\@ifundefined{gnuplottexextension@#1}{#1}{\csname gnuplottexextension@#1\endcsname}}
 \define@key{pic}{scale}[1]{\def\gnuplotscale{#1}}
 \define@key{pic}{terminal}[latex]{\def\gnuplotterminal{#1}}
