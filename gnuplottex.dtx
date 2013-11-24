@@ -680,7 +680,7 @@
     \fi
     \IfFileExists{gnuplottex/\tmpfile}{
         \ifmiktex
-            \immediate\write18{del "gnuplottex/\tmpfile"}
+            \immediate\write18{del "gnuplottex\@backslashchar\tmpfile"}
         \else
             \immediate\write18{rm -f "gnuplottex/\tmpfile"}
         \fi
