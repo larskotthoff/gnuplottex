@@ -42,13 +42,20 @@
 %<package> \NeedsTeXFormat{LaTeX2e}[1999/12/01]
 %<package> \ProvidesPackage{gnuplottex}
 %<*package>
-    [2013/11/16 v0.7.2 gnuplot graphs in LaTeX]
+    [2013/11/24 v0.7.3 gnuplot graphs in LaTeX]
 \RequirePackage{latexsym,graphicx,moreverb,keyval,ifthen}
 %</package>
 %
 %<*driver>
 \documentclass{ltxdoc}
-\usepackage{gnuplottex}
+% \iffalse
+%<*example>
+\usepackage{xcolor,epstopdf,siunitx,eepic,epic,eepicemu,gnuplot-lua-tikz}
+% \fi
+% \iffalse
+%</example>
+% \fi
+\usepackage[siunitx]{gnuplottex}
 \EnableCrossrefs
 \CodelineIndex
 \RecordChanges
@@ -94,6 +101,7 @@
 % \changes{v0.7}{2013/07/23}{Add cleanup and subfolder option (Udo H\"ofel).}
 % \changes{v0.7.1}{2013/09/08}{Fix bug with subfolder option with MikTeX (Thomas Schmid).}
 % \changes{v0.7.2}{2013/11/16}{Allow to specify path to gnuplot (Manuel Solano).}
+% \changes{v0.7.3}{2013/11/24}{Extended Documentation.}
 %
 % \GetFileInfo{gnuplottex.dtx}
 %
@@ -101,7 +109,7 @@
 %
 % \title{The \textsf{gnuplottex} package\thanks{This document
 %   corresponds to \textsf{gnuplottex}~\fileversion, dated \filedate.}}
-% \author{Lars Kotthoff and contrbutors\\ \texttt{lars@larsko.org}}
+% \author{Lars Kotthoff\hspace{0.05em}\thanks{\texttt{lars@larsko.org}}, Udo H\"ofel\thanks{\texttt{udo.hoefel@pi1.physik.uni-stuttgart.de}} and more contributors }
 %
 % \maketitle
 %
@@ -129,10 +137,12 @@
 % To use gnuplottex, you'll need the \texttt{graphicx}, \texttt{latexsym},
 % \texttt{keyval}, \texttt{ifthen}, and \texttt{moreverb} packages and, of
 % course, gnuplot.
+%If you want to use tikz-terminal you also have to use the \texttt{gnuplot-lua-tikz}-package from gnuplot.
+% If you want to use the \texttt{eepic}-terminal, you'll need the \texttt{eepic}-, the \texttt{epic}- and (if you're not using dvips or dvipdfm) the \texttt{eepicemu}-package.
 %
 % \section{Usage}
 %
-% To load the package, simply \verb=\usepackage{gnuplottex}= in your document
+% To load the package, simply write \verb=\usepackage{gnuplottex}= in your document
 % preamble. Options that can be passed to the package are
 % \begin{description}
 %     \item[\oarg{shell}] Use shell escape to automatically generate the graphs
@@ -186,11 +196,427 @@
 % \verb=\end{gnuplot}=
 %
 % \DescribeMacro{\gnuplotloadfile}
-%
 % In addition to the environment, you can use the command
 % \verb=\gnuplotloadfile= to directly include gnuplot source code. It accepts
 % the same options as the environment, e.g.\\
 % \verb+\gnuplotloadfile[terminal=pdf]{example.gnuplot}+
+%
+%\section{Examples}
+% Here are short examples of each possible terminal.
+%
+%	\DescribeMacro{latex} 
+% This is a terminal that offers only basic support, as you won't be able to (easily) use colours. For an example see figure~\ref{pic:latex}.
+%
+% An advantage of this terminal is that it only relies on the picture-environment (which should be supported widely).
+% Furthermore you can use the \texttt{siunitx}-option to get correct axis labeling and you can use \LaTeX{} commands.
+%
+% On the other hand, if you have multiple things to plot, it'll be hard to distinguish them, as you can't use colours (and the dash patterns are hard to distinguish).
+% As this is something which should be avoided, especially for scientific work, if possible, you should try another terminal.
+% \iffalse
+%<*example>
+% \fi
+\begin{figure}%
+	\centering%
+	\begin{gnuplot}[terminal=latex, terminaloptions=rotate]
+		set key box top left
+		set key width 4
+		set sample 1000
+		set xr [-5:5]
+		set yr [-1:1]
+		set xlabel '$x$-label'
+		set ylabel '$y$-label'
+		plot 	sin(x) w l lc 1 t '$\sin(x)$',\
+					cos(x) w l lc 2 t '$\cos(x)$',\
+					tan(x) w l lc 3 t '$\tan(x)$',\
+					tanh(x) w l lc 4 t '$\tanh(x)$'
+	\end{gnuplot}
+	\caption{This is a simple example using the \texttt{latex}-terminal.}%
+	\label{pic:latex}%
+\end{figure}%
+% \iffalse
+%</example>
+% \fi
+%The source code for figure~\ref{pic:latex} is:\\
+%\verb+\begin{figure}%+\\
+%\verb+   \centering%+\\
+%\verb+   \begin{gnuplot}[terminal=latex, terminaloptions=rotate]+\\
+%\verb+      set key box top left+\\
+%\verb+      set key width 4+\\
+%\verb+      set sample 1000+\\
+%\verb+      set xr [-5:5]+\\
+%\verb+      set yr [-1:1]+\\
+%\verb+      set xlabel '$x$-label'+\\
+%\verb+      set ylabel '$y$-label'+\\
+%\verb+      plot 	sin(x) w l lc 1 t '$\sin(x)$',\+\\
+%\verb+            cos(x) w l lc 2 t '$\cos(x)$',\+\\
+%\verb+            tan(x) w l lc 3 t '$\tan(x)$',\+\\
+%\verb+            tanh(x) w l lc 4 t '$\tanh(x)$'+\\
+%\verb+   \end{gnuplot}+\\
+%\verb+   \caption{This is a simple example using the latex-terminal.}%+\\
+%\verb+   \label{pic:latex}%+\\
+%\verb+\end{figure}%+\\
+%
+%	\DescribeMacro{epslatex} 
+% This terminal produces high-quality output, you also can use the \texttt{siunitx}-option for axis labeling and the usual \LaTeX{} commands.
+%
+% There are rare examples where one sees flaws, like two lines not completely adhering (see e.g. some parts of the red line in figure~\ref{pic:epslatex}).
+% You have to use the \texttt{epstopdf}-package to use this terminal with pdf\TeX.
+%
+% If you're using pdf\TeX{} this or the \texttt{cairolatex}-terminal should be the terminals you use.
+% Your pdf viewer can slow down dramatically, if you use high resolution 3d plots though, but there are seldom real problems.
+% For an example see figure~\ref{pic:epslatex}.
+%
+% \iffalse
+%<*example>
+% \fi
+\begin{figure}%
+	\centering%
+	\begin{gnuplot}[terminal=epslatex, terminaloptions=color dashed]
+		set key box top left
+		set key width 2
+		set key opaque
+		set sample 1000
+		set xr [-5:5]
+		set yr [-1:1]
+		set xlabel '$x$-label'
+		set ylabel '$y$-label'
+		plot 	sin(x) w l lc 1 lw 3 t '$\sin(x)$',\
+					cos(x) w l lc 7 lw 3 t '$\cos(x)$',\
+					tan(x) w l lc 3 lw 3 t '$\tan(x)$',\
+					tanh(x) w l lc 4 lw 3 t '$\tanh(x)$'
+	\end{gnuplot}
+	\caption{This is a simple example using the \texttt{epslatex}-terminal.}%
+	\label{pic:epslatex}%
+\end{figure}%
+% \iffalse
+%</example>
+% \fi
+%
+%Its code is:\\
+%~\\
+%\verb+\begin{figure}%+\\
+%\verb+   \centering%+\\
+%\verb+   \begin{gnuplot}[terminal=epslatex, terminaloptions=color dashed]+\\
+%\verb+      set key box top left+\\
+%\verb+      set key width 2+\\
+%\verb+      set key opaque+\\
+%\verb+      set sample 1000+\\
+%\verb+      set xr [-5:5]+\\
+%\verb+      set yr [-1:1]+\\
+%\verb+      set xlabel '$x$-label'+\\
+%\verb+      set ylabel '$y$-label'+\\
+%\verb+      plot  sin(x) w l lc 1 lw 3 t '$\sin(x)$',\+\\
+%\verb+            cos(x) w l lc 2 lw 3 t '$\cos(x)$',\+\\
+%\verb+            tan(x) w l lc 3 lw 3 t '$\tan(x)$',\+\\
+%\verb+            tanh(x) w l lc 4 lw 3 t '$\tanh(x)$'+\\
+%\verb+   \end{gnuplot}+\\
+%\verb+   \caption{This is a simple example using the epslatex-terminal.}%+\\
+%\verb+   \label{pic:epslatex}%+\\
+%\verb+\end{figure}%+\\
+%
+%	\DescribeMacro{jpeg} 
+% This is a terminal that offers (compared with other terminals) poor raster graphics output.
+% If possible switch to another terminal (preferably to the \texttt{cairolatex}-, the \texttt{epslatex}- or the \texttt{tikz}-terminal)
+% For an example see figure~\ref{pic:jpeg}.
+%
+% There are quite some disadvantages, as you cannot use \LaTeX{} commands, it is hard to get the right font and the right font size, the \texttt{siunitx} option is useless, no vector graphics and there seems to be no support for dashed lines.
+%
+% \iffalse
+%<*example>
+% \fi
+\begin{figure}%
+	\centering%
+	\begin{gnuplot}[terminal=jpeg, terminaloptions=crop]
+		set key box top left
+		set key width -2
+		set key opaque
+		set sample 1000
+		set xr [-5:5]
+		set yr [-1:1]
+		set size 0.7,0.7
+		set xlabel '$x$-label'
+		set ylabel '$y$-label'
+		plot 	sin(x) w l lc 1 lw 2 t '$\sin(x)$',\
+					cos(x) w l lc 7 lw 2 t '$\cos(x)$',\
+					tan(x) w l lc 3 lw 2 t '$\tan(x)$',\
+					tanh(x) w l ls 8 lc 4 lw 2 t '$\tanh(x)$'
+	\end{gnuplot}
+	\caption{This is a simple example using the \texttt{jpeg}-terminal.}%
+	\label{pic:jpeg}%
+\end{figure}%
+% \iffalse
+%</example>
+% \fi
+%
+%Its code is:\\
+%~\\
+%\verb+\begin{figure}%+\\
+%\verb+   \centering%+\\
+%\verb+   \begin{gnuplot}[terminal=jpeg, terminaloptions=crop]+\\
+%\verb+      set key box top left+\\
+%\verb+      set key width -2+\\
+%\verb+      set key opaque+\\
+%\verb+      set sample 1000+\\
+%\verb+      set xr [-5:5]+\\
+%\verb+      set yr [-1:1]+\\
+%\verb+      set size 0.7,0.7+\\
+%\verb+      set xlabel '$x$-label'+\\
+%\verb+      set ylabel '$y$-label'+\\
+%\verb+      plot  sin(x) w l lc 1 lw 3 t '$\sin(x)$',\+\\
+%\verb+            cos(x) w l lc 2 lw 3 t '$\cos(x)$',\+\\
+%\verb+            tan(x) w l lc 3 lw 3 t '$\tan(x)$',\+\\
+%\verb+            tanh(x) w l lc 4 lw 3 t '$\tanh(x)$'+\\
+%\verb+   \end{gnuplot}+\\
+%\verb+   \caption{This is a simple example using the jpeg-terminal.}%+\\
+%\verb+   \label{pic:jpeg}%+\\
+%\verb+\end{figure}%+\\
+%
+%	\DescribeMacro{cairolatex} 
+% This is a terminal that offers high-quality output.
+% Unlike the \texttt{epslatex}-terminal it will generate \emph{directly} pdf output.
+% It allows the use of the \texttt{siunitx} option as well as \LaTeX{} commands.
+% If you're using pdf\TeX{} this or the \texttt{epslatex}-terminal should be the terminals you use.
+% \texttt{cairolatex} has the advantage of not needing the \texttt{epstopdf}-package.
+% Your pdf viewer can slow down dramatically, if you use high resolution 3d plots though, but there are seldom real problems.
+% For an example see figure~\ref{pic:cairolatex}.
+%
+% \iffalse
+%<*example>
+% \fi
+\begin{figure}%
+	\centering%
+	\begin{gnuplot}[terminal=cairolatex, terminaloptions=color dashed]
+		set key box top left
+		set key width 4
+		set key height 0.25
+		set key spacing 1.2
+		set key opaque
+		set sample 1000
+		set xr [-5:5]
+		set yr [-1:1]
+		set xlabel '$x$-label'
+		set ylabel '$y$-label'
+		plot 	sin(x) w l lc 1 lw 3 t '$\sin(x)$',\
+					cos(x) w l lc 7 lw 3 t '$\cos(x)$',\
+					tan(x) w l lc 3 lw 3 t '$\tan(x)$',\
+					tanh(x) w l lc 4 lw 3 t '$\tanh(x)$'
+	\end{gnuplot}
+	\caption{This is a simple example using the \texttt{cairolatex}-terminal.}%
+	\label{pic:cairolatex}%
+\end{figure}%
+% \iffalse
+%</example>
+% \fi
+%
+%Its code is:\\
+%~\\
+%\verb+\begin{figure}%+\\
+%\verb+   \centering%+\\
+%\verb+   \begin{gnuplot}[terminal=epslatex, terminaloptions=color dashed]+\\
+%\verb+      set key box top left+\\
+%\verb+      set key width 4+\\
+%\verb+      set key height 0.25+\\
+%\verb+      set key spacing 1.2+\\
+%\verb+      set key opaque+\\
+%\verb+      set sample 1000+\\
+%\verb+      set xr [-5:5]+\\
+%\verb+      set yr [-1:1]+\\
+%\verb+      set xlabel '$x$-label'+\\
+%\verb+      set ylabel '$y$-label'+\\
+%\verb+      plot 	sin(x) w l lc 1 lw 3 t '$\sin(x)$',\+\\
+%\verb+            cos(x) w l lc 7 lw 3 t '$\cos(x)$',\+\\
+%\verb+            tan(x) w l lc 3 lw 3 t '$\tan(x)$',\+\\
+%\verb+            tanh(x) w l lc 4 lw 3 t '$\tanh(x)$'+\\
+%\verb+   \end{gnuplot}+\\
+%\verb+   \caption{This is a simple example using the cairolatex-terminal.}%+\\
+%\verb+   \label{pic:cairolatex}%+\\
+%\verb+\end{figure}%+\\
+%
+%	\DescribeMacro{eepic} 
+% This is a terminal that offers better output than the \texttt{latex}-terminal, but it is quite worse compared to \texttt{epslatex/cairolatex/tikz}-terminal.
+% You can use the \texttt{siunitx} option as well as \LaTeX{} commands.
+%
+% It seems one can use either coloured or dashed lines, not both combined.
+% The lines are also pretty ugly and there is no \verb+set key opaque+-option in \texttt{gnuplot} available.
+%
+% For an example see figure~\ref{pic:eepic}.
+% Avoid if possible.
+% There are better terminals available.
+%
+% \iffalse
+%<*example>
+% \fi
+\begin{figure}%
+	\centering%
+	\begin{gnuplot}[terminal=eepic, terminaloptions = color rotate]
+		set key box top left
+	  set key width -3
+		set sample 1000
+		set xr [-5:5]
+		set yr [-1:1]
+		set xlabel '$x$-label'
+		set ylabel '$y$-label'
+		plot 	sin(x) w l lc 1 lw 3 t '$\sin(x)$',\
+					cos(x) w l lc 2 lw 3 t '$\cos(x)$',\
+					tan(x) w l lc 3 lw 3 t '$\tan(x)$',\
+					tanh(x) w l lc 4 lw 3 t '$\tanh(x)$'
+	\end{gnuplot}
+	\caption{This is a simple example using the \texttt{eepic}-terminal.}%
+	\label{pic:eepic}%
+\end{figure}%
+% \iffalse
+%</example>
+% \fi
+%Its code is:\\
+%~\\
+%\verb+\begin{figure}%+\\
+%\verb+   \centering%+\\
+%\verb+   \begin{gnuplot}[terminal=eepic, terminaloptions = color rotate]+\\
+%\verb+      set key box top left+\\
+%\verb+      #set key width -3+\\
+%\verb+      set sample 1000+\\
+%\verb+      set xr [-5:5]+\\
+%\verb+      set yr [-1:1]+\\
+%\verb+      set xlabel '$x$-label'+\\
+%\verb+      set ylabel '$y$-label'+\\
+%\verb+      plot 	sin(x) w l lc 1 lw 3 t '$\sin(x)$',\+\\
+%\verb+            cos(x) w l lc 2 lw 3 t '$\cos(x)$',\+\\
+%\verb+            tan(x) w l lc 3 lw 3 t '$\tan(x)$',\+\\
+%\verb+            tanh(x) w l lc 4 lw 3 t '$\tanh(x)$'+\\
+%\verb+   \end{gnuplot}+\\
+%\verb+   \caption{This is a simple example using the cairolatex-terminal.}%+\\
+%\verb+   \label{pic:cairolatex}%+\\
+%\verb+\end{figure}%+\\
+%
+%	\DescribeMacro{emtex}
+% Similar to the \texttt{latex}-terminal (but with emtex specials), except it seems not to draw any borders (at least for pdf\TeX).
+% Only relies on the picture environment, so should be widely supported, the \texttt{siunitx} option is available and you can use \LaTeX{} commands.
+%
+% If you have multiple things to plot, it'll be hard to distinguish them, as you can't use colours (and the dash patterns are hard to distinguish), this is a no-no for scientific work, so avoid if possible.
+%
+% \iffalse
+%<*example>
+% \fi
+\begin{figure}%
+	\centering%
+	\begin{gnuplot}[terminal=emtex, terminaloptions=rotate]
+		set key box top left
+		set key width 4
+		set sample 1000
+		set xr [-5:5]
+		set yr [-1:1]
+		set xlabel '$x$-label'
+		set ylabel '$y$-label'
+		plot 	sin(x) w l lc 2 t '$\sin(x)$',\
+					cos(x) w l lc 4 t '$\cos(x)$',\
+					tan(x) w l lc 6 t '$\tan(x)$',\
+					tanh(x) w l lc 8 t '$\tanh(x)$'
+	\end{gnuplot}
+	\caption{This is a simple example using the \texttt{emtex}-terminal.}%
+	\label{pic:emtex}%
+\end{figure}%
+% \iffalse
+%</example>
+% \fi
+%The source code for figure~\ref{pic:emtex} is:\\
+%~\\
+%\verb+\begin{figure}%+\\
+%\verb+   \centering%+\\
+%\verb+   \begin{gnuplot}[terminal=emtex, terminaloptions=rotate]+\\
+%\verb+      set key box top left+\\
+%\verb+      set key width 4+\\
+%\verb+      set sample 1000+\\
+%\verb+      set xr [-5:5]+\\
+%\verb+      set yr [-1:1]+\\
+%\verb+      set xlabel '$x$-label'+\\
+%\verb+      set ylabel '$y$-label'+\\
+%\verb+      plot 	sin(x) w l lc 2 t '$\sin(x)$',\+\\
+%\verb+            cos(x) w l lc 4 t '$\cos(x)$',\+\\
+%\verb+            tan(x) w l lc 6 t '$\tan(x)$',\+\\
+%\verb+            tanh(x) w l lc 8 t '$\tanh(x)$'+\\
+%\verb+   \end{gnuplot}+\\
+%\verb+   \caption{This is a simple example using the emtex-terminal.}%+\\
+%\verb+   \label{pic:emtex}%+\\
+%\verb+\end{figure}%+\\
+%
+%	\DescribeMacro{tikz}
+% Probably offers the best output terminal at the moment, even though the difference to \texttt{cairolatex} and \texttt{epslatex} isn't that big.
+% The \texttt{siunitx} option is available, \LaTeX{} commands can be used and you can easily export constants from within gnuplot (see the example code for an example on how to export them).
+%
+%On the other hand requires this terminal the \texttt{gnuplot-lua-tikz}-package and you cannot use many plots if you use pdf\TeX, as \TeX s memory will be exceeded pretty fast.
+% If you use Lua\TeX, this is no problem.
+%
+% \iffalse
+%<*example>
+% \fi
+\begin{figure}%
+	\centering%
+	\begin{gnuplot}[terminal=tikz, terminaloptions={color dashed providevars a,c}]
+		set key box top left
+		set key width -0.9
+		set key height 0.25
+		set key spacing 1.25
+		set size 1,0.9
+		set sample 1000
+		set grid xtics lt 0 ls 0
+		set grid ytics lt 0 ls 0
+		set xr [-5:5]
+		set yr [-1:1]
+		set key opaque
+		f(x) = a*x+c
+		fit f(x) "SomeValuesForGnuplot.txt" u ($1*5/7):($2/20) via a,c
+		set xlabel '$x$-label'
+		set ylabel '$y$-label'
+		plot 	sin(x) w l lc -1 t '$\sin(x)$',\
+					cos(x) w l lc 1 t '$\cos(x)$',\
+					tan(x) w l lc 7 t '$\tan(x)$',\
+					tanh(x) w l lc 3 t '$\tanh(x)$',\
+					f(x) t 'fitted function' lc 4,\
+					"SomeValuesForGnuplot.txt" u ($1*5/7):($2/20) w points lc 5 t 'example values'
+	\end{gnuplot}
+	\caption{This is a simple example using the \texttt{tikz}-terminal. The slope of the fitted function ($a*x+c$) is $a=\num{\gpgetvar{a}}$, while its offset is $c=\num{\gpgetvar{c}}$.}%
+	\label{pic:tikz}%
+\end{figure}%
+% \iffalse
+%</example>
+% \fi
+%
+% The source code for figure~\ref{pic:tikz} is:\\
+%~\\
+%\verb+\begin{figure}%+\\
+%\verb+   \centering%+\\
+%\verb+   \begin{gnuplot}[terminal=tikz, terminaloptions={color dashed providevars a,c}]+\\
+%\verb+      set key box top left+\\
+%\verb+      set key width -0.9+\\
+%\verb+      set key height 0.25+\\
+%\verb+      set key spacing 1.25+\\
+%\verb+      set sample 1000+\\
+%\verb+      set grid xtics lt 0 ls 0+\\
+%\verb+      set grid ytics lt 0 ls 0+\\
+%\verb+      set xr [-5:5]+\\
+%\verb+      set yr [-1:1]+\\
+%\verb+      set key opaque+\\
+%\verb+      set xlabel '$x$-label'+\\
+%\verb+      set ylabel '$y$-label'+\\
+%\verb-      f(x) = a*x+c-\\
+%\verb+      fit f(x) "SomeValuesForGnuplot.txt" u ($1*5/7):($2/20) via a,c+\\
+%\verb+      plot 	sin(x) w l lc 2 t '$\sin(x)$',\+\\
+%\verb+            cos(x) w l lc 4 t '$\cos(x)$',\+\\
+%\verb+            tan(x) w l lc 6 t '$\tan(x)$',\+\\
+%\verb+            tanh(x) w l lc 3 t '$\tanh(x)$',\+\\
+%\verb+            f(x) t 'fitted function' lc 4,\+\\
+%\verb+            "SomeValuesForGnuplot.txt" u ($1*5/7):($2/20) w points lc 5\+\\
+%\verb+            t 'example values'+\\
+%\verb+   \end{gnuplot}+\\
+%\verb+   \caption{This is a simple example using the \texttt{tikz}-terminal.+\\
+%\verb-            The slope of the fitted function ($a*x+c$) is $a=\num{\gpgetvar{a}}$,-\\
+%\verb-            while its offset is $c=\num{\gpgetvar{c}}$.}%-\\
+%\verb+   \label{pic:tikz}%+\\
+%\verb+\end{figure}%+\\
+%
+%	\DescribeMacro{pstex,pslatex,pstricks}
+% The \texttt{pstex}- and \texttt{pslatex}-terminal produces unusable output with pdf\TeX.
+% I wasn't able to get any output using the \texttt{pstricks}-terminal with pdf\TeX{} (if you manage to get reasonable output via one of these terminals, please send me an email).  
 %
 % \section{Acknowledgements}
 %
@@ -254,7 +680,7 @@
     \fi
     \IfFileExists{gnuplottex/\tmpfile}{
         \ifmiktex
-            \immediate\write18{del "gnuplottex/\tmpfile"}
+            \immediate\write18{del "gnuplottex\@backslashchar\tmpfile"}
         \else
             \immediate\write18{rm -f "gnuplottex/\tmpfile"}
         \fi
@@ -335,6 +761,7 @@
 \def\gnuplottexextension@emtex{\string tex}
 \def\gnuplottexextension@jpeg{\string jpg}
 \def\gnuplottexextension@tikz{\string tex}
+\def\gnuplottexextension@lua{\string tex}
 \def\gnuplottexextension#1{\@ifundefined{gnuplottexextension@#1}{#1}{\csname gnuplottexextension@#1\endcsname}}
 \define@key{pic}{scale}[1]{\def\gnuplotscale{#1}}
 \define@key{pic}{terminal}[latex]{\def\gnuplotterminal{#1}}
