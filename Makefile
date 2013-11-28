@@ -1,8 +1,8 @@
 clean:
-	rm -f *.sty *.log *.aux *.dvi *.glo *.idx *.eps *.ps *.pdf *-fig*.gnuplot example-pdf-gnuplottex*
+	rm -f *.sty *.log *.aux *.dvi *.glo *.idx *.eps *.ps *.pdf *-fig*.gnuplot example-pdf-gnuplottex* *-fig*.tex *.jpg
 
 doc:	sty
-	pdflatex gnuplottex.dtx
+	pdflatex -shell-escape gnuplottex.dtx && pdflatex -shell-escape gnuplottex.dtx
 
 sty:
 	latex gnuplottex.ins
