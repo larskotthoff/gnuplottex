@@ -619,15 +619,17 @@
 % In the preamble write:\\
 % \verb+\usepackage{tikz}	+\\
 % \verb+\usetikzlibrary{external}+\\
-% \verb+\tikzexternalize[prefix=gnuplottex/]     +%-- Use the gnuplottex-subfolder. Deactivate the subfolderoption of gnuplottex to use this!+\\
-% \verb+\tikzset{external/system call={lualatex -shell-escape -halt-on-error -interaction=batchmode -jobname "\image" "\texsource"}}+\\
+% \verb+\tikzexternalize[prefix=gnuplottex/]  %-- Use the gnuplottex-subfolder. Deactivate+\\
+%\verb+                                      %-- the subfolderoption of gnuplottex to use!+\\
+% \verb+\tikzset{external/system call={lualatex -shell-escape -halt-on-error+\\
+% \verb+-interaction=batchmode -jobname "\image" "\texsource"}}+\\
 % \verb+\tikzexternalize+\\
 % In the document, write e.\,g.:\\
-% \begin{figure}%
+% \verb+\begin{figure}%+\\
 % \verb+   \centering%+\\
 % \verb+   \tikzsetnextfilename{ThisIsASinus}+\\
 % \verb+   \begin{tikzpicture}[gnuplot]+\\
-% \verb+   \begin{gnuplot}[terminal=tikz, terminaloptions=color dashed nopicenvironment tikzarrows]+\\
+% \verb+   \begin{gnuplot}[terminal=tikz, terminaloptions=color dashed nopicenvironment]+\\
 %\verb+      set grid xtics mxtics lt 0 ls 0+\\
 %\verb+      set grid ytics mytics lt 0 ls 0+\\
 %\verb+      set key box top left+\\
