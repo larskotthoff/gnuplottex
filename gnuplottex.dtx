@@ -102,6 +102,7 @@
 % \changes{v0.7.1}{2013/09/08}{Fix bug with subfolder option with MikTeX (Thomas Schmid).}
 % \changes{v0.7.2}{2013/11/16}{Allow to specify path to gnuplot (Manuel Solano).}
 % \changes{v0.8}{2013/11/24}{Extended Documentation.}
+% \changes{v0.8.1}{2013/12/29}{Extended Documentation.}
 %
 % \GetFileInfo{gnuplottex.dtx}
 %
@@ -612,6 +613,31 @@
 %\verb-            The slope of the fitted function ($a*x+c$) is $a=\num{\gpgetvar{a}}$,-\\
 %\verb-            while its offset is $c=\num{\gpgetvar{c}}$.}%-\\
 %\verb+   \label{pic:tikz}%+\\
+%\verb+\end{figure}%+\\
+% As compiling all pictures everytime can take quite a long time, the \texttt{tikz}-package offers the possibility to externalize the pictures, resulting in a great speedup.
+% An example for Lua\TeX{} is shown below, pictures are not generated if they are up-to-date.
+% In the preamble write:\\
+% \verb+\usepackage{tikz}	+\\
+% \verb+\usetikzlibrary{external}+\\
+% \verb+\tikzexternalize[prefix=gnuplottex/]  %-- Use the gnuplottex-subfolder. Deactivate+\\
+%\verb+                                      %-- the subfolderoption of gnuplottex to use!+\\
+% \verb+\tikzset{external/system call={lualatex -shell-escape -halt-on-error+\\
+% \verb+-interaction=batchmode -jobname "\image" "\texsource"}}+\\
+% \verb+\tikzexternalize+\\
+% In the document, write e.\,g.:\\
+% \verb+\begin{figure}%+\\
+% \verb+   \centering%+\\
+% \verb+   \tikzsetnextfilename{ThisIsASinus}+\\
+% \verb+   \begin{tikzpicture}[gnuplot]+\\
+% \verb+   \begin{gnuplot}[terminal=tikz, terminaloptions=color dashed nopicenvironment]+\\
+%\verb+      set grid xtics mxtics lt 0 ls 0+\\
+%\verb+      set grid ytics mytics lt 0 ls 0+\\
+%\verb+      set key box top left+\\
+%\verb+      plot sin(x) w l t 'Sinus'+\\
+% \verb+   \end{gnuplot}+\\
+% \verb+   \end{tikzpicture}+\\
+% \verb+   \caption{Captiontext.}%+\\
+% \verb+   \label{pic:ThisIsASinus}%+\\
 %\verb+\end{figure}%+\\
 %
 %	\DescribeMacro{pstex,pslatex,pstricks}
