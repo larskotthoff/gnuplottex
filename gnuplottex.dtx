@@ -1,6 +1,6 @@
 % \iffalse meta-comment
 %
-% Copyright (c) 2006-2013, Lars Kotthoff <lars@larsko.org> and contributors
+% Copyright (c) 2006-2015, Lars Kotthoff <lars@larsko.org> and contributors
 %
 % Large portions copied from pdftex,
 % Copyright (c) 2001-3, Radhakrishnan CV <cvr@river-valley.com>
@@ -42,8 +42,8 @@
 %<package> \NeedsTeXFormat{LaTeX2e}[1999/12/01]
 %<package> \ProvidesPackage{gnuplottex}
 %<*package>
-    [2013/11/24 v0.8 gnuplot graphs in LaTeX]
-\RequirePackage{graphicx,moreverb,keyval,ifthen}
+    [2015/12/08 v0.9 gnuplot graphs in LaTeX]
+\RequirePackage{graphicx,moreverb,keyval,ifthen,catchfile}
 %</package>
 %
 %<*driver>
@@ -67,7 +67,7 @@
 %</driver>                                                       
 % \fi
 %
-% \CheckSum{412}
+% \CheckSum{452}
 %
 % \CharacterTable                                                
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -103,6 +103,7 @@
 % \changes{v0.7.2}{2013/11/16}{Allow to specify path to gnuplot (Manuel Solano).}
 % \changes{v0.8}{2013/11/24}{Extended Documentation.}
 % \changes{v0.8.1}{2013/12/29}{Extended Documentation.}
+% \changes{v0.9}{2015/12/08}{Show any errors during conversion on Unix (Enrico Gregorio, suggested by Udo H\"ofel).}
 %
 % \GetFileInfo{gnuplottex.dtx}
 %
@@ -693,6 +694,7 @@
 		\else
 				\IfFileExists{\tmpfile}{\ShellEscapetrue}{\ShellEscapefalse}
 				\immediate\write18{rm -f \tmpfile}
+                \immediate\write18{rm -f "\jobname.gnuploterrors"}
 		\fi
 \fi
 
@@ -810,7 +812,11 @@
 \long\gdef\gnuplotgraphicsprocess{%
 		\ifShellEscape
 				\IfFileExists{\subfolder\figname.gnuplot}{%
-						\immediate\write18{\gnuplotexe\space \subfolder\figname.gnuplot}
+                        \ifmiktex
+                            \immediate\write18{\gnuplotexe\space \subfolder\figname.gnuplot}
+                        \else
+                            \immediate\write18{\gnuplotexe\space \subfolder\figname.gnuplot\space 2>>\jobname.gnuploterrors}
+                        \fi
 						\IfFileExists{\subfolder\figname.\extension}{%
 								\PackageInfo{gnuplottex}{\subfolder\figname.gnuplot converted}
                 \ifcleanup
@@ -824,6 +830,15 @@
 						{\PackageWarningNoLine{gnuplottex}
 								{Conversion of \subfolder\figname.gnuplot failed}}}{}
 		\fi}
+\long\def\gnuploterrors@eatpar#1#2\@nil{\def\gnuploterrors@{#2}}
+\AtEndDocument{%
+  \CatchFileDef\gnuploterrors@{\jobname.gnuploterrors}{\endlinechar=`^^J \catcode`\ =12 }%
+  \expandafter\gnuploterrors@eatpar\gnuploterrors@\@nil
+  \ifx\gnuploterrors@\@empty\else
+    \PackageWarningNoLine{gnuplottex}{Gnuplot execution produced errors:^^J%
+      \detokenize\expandafter{\gnuploterrors@}}%
+  \fi
+}
 %    \end{macrocode}
 %
 % \subsection{Graph inclusion}
