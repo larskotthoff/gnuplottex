@@ -42,7 +42,7 @@
 %<package> \NeedsTeXFormat{LaTeX2e}[1999/12/01]
 %<package> \ProvidesPackage{gnuplottex}
 %<*package>
-    [2015/12/08 v0.9 gnuplot graphs in LaTeX]
+    [2015/12/13 v0.9.1 gnuplot graphs in LaTeX]
 \RequirePackage{graphicx,moreverb,keyval,ifthen,catchfile}
 %</package>
 %
@@ -67,7 +67,7 @@
 %</driver>                                                       
 % \fi
 %
-% \CheckSum{452}
+% \CheckSum{455}
 %
 % \CharacterTable                                                
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -104,6 +104,7 @@
 % \changes{v0.8}{2013/11/24}{Extended Documentation.}
 % \changes{v0.8.1}{2013/12/29}{Extended Documentation.}
 % \changes{v0.9}{2015/12/08}{Show any errors during conversion on Unix (Enrico Gregorio, suggested by Udo H\"ofel).}
+% \changes{v0.9.1}{2015/12/13}{Fix bug in error gathering introduced in 0.9.}
 %
 % \GetFileInfo{gnuplottex.dtx}
 %
@@ -111,7 +112,7 @@
 %
 % \title{The \textsf{gnuplottex} package\thanks{This document
 %   corresponds to \textsf{gnuplottex}~\fileversion, dated \filedate.}}
-% \author{Lars Kotthoff\hspace{0.05em}\thanks{\texttt{lars@larsko.org}}, Udo H\"ofel\thanks{\texttt{udo.hoefel@pi1.physik.uni-stuttgart.de}} and more contributors }
+% \author{Lars Kotthoff\hspace{0.05em}\thanks{\texttt{lars@larsko.org}}, Udo H\"ofel\thanks{\texttt{udo.hoefel@ipp.mpg.de}} and more contributors }
 %
 % \maketitle
 %
@@ -832,11 +833,14 @@
 		\fi}
 \long\def\gnuploterrors@eatpar#1#2\@nil{\def\gnuploterrors@{#2}}
 \AtEndDocument{%
-  \CatchFileDef\gnuploterrors@{\jobname.gnuploterrors}{\endlinechar=`^^J \catcode`\ =12 }%
-  \expandafter\gnuploterrors@eatpar\gnuploterrors@\@nil
-  \ifx\gnuploterrors@\@empty\else
-    \PackageWarningNoLine{gnuplottex}{Gnuplot execution produced errors:^^J%
-      \detokenize\expandafter{\gnuploterrors@}}%
+  \ifmiktex
+  \else
+    \CatchFileDef\gnuploterrors@{\jobname.gnuploterrors}{\endlinechar=`^^J \catcode`\ =12 }%
+    \expandafter\gnuploterrors@eatpar\gnuploterrors@\@nil
+    \ifx\gnuploterrors@\@empty\else
+      \PackageWarningNoLine{gnuplottex}{Gnuplot execution produced errors:^^J%
+        \detokenize\expandafter{\gnuploterrors@}}%
+    \fi
   \fi
 }
 %    \end{macrocode}
