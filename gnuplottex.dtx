@@ -42,7 +42,7 @@
 %<package> \NeedsTeXFormat{LaTeX2e}[1999/12/01]
 %<package> \ProvidesPackage{gnuplottex}
 %<*package>
-    [2016/08/21 v0.9.2 gnuplot graphs in LaTeX]
+    [2019/09/22 v0.9.3 gnuplot graphs in LaTeX]
 \RequirePackage{graphicx,moreverb,keyval,ifthen,catchfile}
 %</package>
 %
@@ -106,6 +106,7 @@
 % \changes{v0.9}{2015/12/08}{Show any errors during conversion on Unix (Enrico Gregorio, suggested by Udo H\"ofel).}
 % \changes{v0.9.1}{2015/12/13}{Fix bug in error gathering introduced in 0.9.}
 % \changes{v0.9.2}{2016/08/21}{Misc bugfixes (thanks fostermaier, Enrico Gregorio, Jan-Benedict Glaw).}
+% \changes{v0.9.3}{2019/09/22}{Whitespace fixes (thanks Johannes Hielscher).}
 %
 % \GetFileInfo{gnuplottex.dtx}
 %
@@ -751,18 +752,18 @@
 \def\gnuplotverbatimwrite#1{%
     \def\BeforeStream
     {\message{Opening gnuplot stream #1}%
-        \immediate\write\verbatim@out{\string set terminal \gnuplotterminal \gnuplotterminaloptions}
-				\immediate\write\verbatim@out{\string set output '\subfolder\figname.\gnuplottexextension{\gnuplotterminal}'}
+        \immediate\write\verbatim@out{\string set terminal \gnuplotterminal \gnuplotterminaloptions}%
+				\immediate\write\verbatim@out{\string set output '\subfolder\figname.\gnuplottexextension{\gnuplotterminal}'}%
     \ifusesiunitx
         \ifthenelse{\equal{\extension}{\string tex}}{\usesiunitxingnuplot}{\PackageWarningNoLine{gnuplottex}{Axis numbers not written in \noexpand\num{}. Use a terminal that allows TeX output to enable this feature.}}
     \else
         \relax
     \fi
-    }
-    \@bsphack
-    \immediate\openout \verbatim@out #1
+    }%
+    \@bsphack%
+    \immediate\openout \verbatim@out #1%
     \BeforeStream%
-    \let\do\@makeother\dospecials
+    \let\do\@makeother\dospecials%
     \catcode`\^^M\active
     \def\verbatim@processline{%
         \immediate\write\verbatim@out
@@ -802,11 +803,11 @@
 \define@key{pic}{terminal}[latex]{\def\gnuplotterminal{#1}}
 \define@key{pic}{terminaloptions}{\def\gnuplotterminaloptions{ #1}}
 \newenvironment{gnuplot}[1][]{\stepcounter{fignum}%
-		\def\gnuplotterminal{latex}
-		\def\gnuplotterminaloptions{}
-		\def\gnuplotscale{1}
-		\setkeys{pic}{#1}
-    \xdef\gnuplotCutFile{\subfolder\figname.gnuplot}
+		\def\gnuplotterminal{latex}%%
+		\def\gnuplotterminaloptions{}%%
+		\def\gnuplotscale{1}%%
+		\setkeys{pic}{#1}%%
+    \xdef\gnuplotCutFile{\subfolder\figname.gnuplot}%%
     \gnuplotverbatimwrite{\gnuplotCutFile}}
     {\endgnuplotverbatimwrite%
     \gnuplotgraphicsprocess%
@@ -848,7 +849,7 @@
         \PackageWarningNoLine{gnuplottex}{Gnuplot execution produced errors:^^J%
           \detokenize\expandafter{\gnuploterrors@}}%
       \fi
-    }{}%
+    }{}
   \fi
 }
 %    \end{macrocode}
