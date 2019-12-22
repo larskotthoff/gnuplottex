@@ -42,7 +42,7 @@
 %<package> \NeedsTeXFormat{LaTeX2e}[1999/12/01]
 %<package> \ProvidesPackage{gnuplottex}
 %<*package>
-    [2019/09/22 v0.9.3 gnuplot graphs in LaTeX]
+    [2019/12/22 v0.9.4 gnuplot graphs in LaTeX]
 \RequirePackage{graphicx,moreverb,keyval,ifthen,catchfile}
 %</package>
 %
@@ -107,6 +107,7 @@
 % \changes{v0.9.1}{2015/12/13}{Fix bug in error gathering introduced in 0.9.}
 % \changes{v0.9.2}{2016/08/21}{Misc bugfixes (thanks fostermaier, Enrico Gregorio, Jan-Benedict Glaw).}
 % \changes{v0.9.3}{2019/09/22}{Whitespace fixes (thanks Johannes Hielscher).}
+% \changes{v0.9.4}{2019/12/22}{Whitespace fixes (thanks Johannes Hielscher).}
 %
 % \GetFileInfo{gnuplottex.dtx}
 %
@@ -818,25 +819,25 @@
 %    \begin{macrocode}
 \def\extension{\gnuplottexextension{\gnuplotterminal}}
 \long\gdef\gnuplotgraphicsprocess{%
-		\ifShellEscape
+		\ifShellEscape%
 				\IfFileExists{\subfolder\figname.gnuplot}{%
                         \ifmiktex
-                            \immediate\write18{\gnuplotexe\space \subfolder\figname.gnuplot}
+                            \immediate\write18{\gnuplotexe\space \subfolder\figname.gnuplot}%
                         \else
-                            \immediate\write18{\gnuplotexe\space \subfolder\figname.gnuplot\space 2>>\jobname.gnuploterrors}
-                        \fi
+                            \immediate\write18{\gnuplotexe\space \subfolder\figname.gnuplot\space 2>>\jobname.gnuploterrors}%
+                        \fi%
 						\IfFileExists{\subfolder\figname.\extension}{%
-								\PackageInfo{gnuplottex}{\subfolder\figname.gnuplot converted}
+								\PackageInfo{gnuplottex}{\subfolder\figname.gnuplot converted}%
                 \ifcleanup
                     \ifmiktex
-                        \immediate\write18{del "\subfolder\figname.gnuplot"}
+                        \immediate\write18{del "\subfolder\figname.gnuplot"}%
                     \else
-                        \immediate\write18{rm -f "\subfolder\figname.gnuplot"}
-                    \fi
-                \fi
+                        \immediate\write18{rm -f "\subfolder\figname.gnuplot"}%
+                    \fi%
+                \fi%
             }
 						{\PackageWarningNoLine{gnuplottex}
-								{Conversion of \subfolder\figname.gnuplot failed}}}{}
+								{Conversion of \subfolder\figname.gnuplot failed}}}{}%
 		\fi}
 \long\def\gnuploterrors@eatpar#1#2\@nil{\def\gnuploterrors@{#2}}
 \AtEndDocument{%
